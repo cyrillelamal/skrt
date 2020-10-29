@@ -36,32 +36,29 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->_em->flush();
     }
 
-    // /**
-    //  * @return User[] Returns an array of User objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @param string $username
+     * @return array
+     */
+    public function findWhereUsernameLike(string $username): array
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $qb = $this->createQueryBuilder('user');
 
-    /*
-    public function findOneBySomeField($value): ?User
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $qb->where('user.username LIKE :username')->setParameter('username', "%$username%");
+
+        return $qb->getQuery()->getResult();
     }
-    */
+
+    /**
+     * @param string[] $usernames
+     * @return User[]
+     */
+    public function findWhereUsernameIn(array $usernames): array
+    {
+        $qb = $this->createQueryBuilder('user');
+
+        $qb->where('user.username IN (:usernames)')->setParameter('usernames', $usernames);
+
+        return $qb->getQuery()->getResult();
+    }
 }
