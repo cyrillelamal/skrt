@@ -2,8 +2,10 @@
 
 namespace App\Entity;
 
+use App\DataTransferObject\MessageDataTransfer;
 use App\Repository\MessageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=MessageRepository::class)
@@ -14,16 +16,19 @@ class Message
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"messages:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"messages:read"})
      */
     private $body;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"messages:read"})
      */
     private $createdAt;
 
@@ -32,6 +37,25 @@ class Message
      * @ORM\JoinColumn(nullable=false)
      */
     private $conversation;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="messages")
+     * @ORM\JoinColumn(nullable=false)
+     * @Groups({"users:search"})
+     */
+    private $creator;
+
+    public static function buildFromDataTransfer(MessageDataTransfer $dataTransfer): self
+    {
+        $message = new static();
+
+        $message->id = $dataTransfer->getId();
+        $message->setBody($dataTransfer->getBody());
+        $message->setCreatedAt($dataTransfer->getCreatedAt());
+        $message->setCreator(User::buildFromDataTransfer($dataTransfer->getCreator()));
+
+        return $message;
+    }
 
     public function getId(): ?int
     {
@@ -70,6 +94,18 @@ class Message
     public function setConversation(?Conversation $conversation): self
     {
         $this->conversation = $conversation;
+
+        return $this;
+    }
+
+    public function getCreator(): ?User
+    {
+        return $this->creator;
+    }
+
+    public function setCreator(?User $creator): self
+    {
+        $this->creator = $creator;
 
         return $this;
     }

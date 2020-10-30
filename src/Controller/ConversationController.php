@@ -79,13 +79,13 @@ class ConversationController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $conversations = $this->repository->findForUser($user);
+        $conversations = $this->repository->findForUserWithLastMessages($user, 1);
 
         return $this->json(
             $conversations,
             Response::HTTP_OK,
             [],
-            ['groups' => ['conversations:read', 'users:search']]
+            ['groups' => ['conversations:read', 'messages:read', 'users:search']]
         );
     }
 

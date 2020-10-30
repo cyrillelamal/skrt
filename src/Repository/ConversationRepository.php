@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\DataTransferObject\ConversationDataTransfer;
 use App\Entity\Conversation;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -15,34 +16,60 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ConversationRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    /**
+     * @var ConversationDataTransfer
+     */
+    private $dataTransfer;
+
+    public function __construct(ManagerRegistry $registry, ConversationDataTransfer $dataTransfer)
     {
         parent::__construct($registry, Conversation::class);
+        $this->dataTransfer = $dataTransfer;
     }
 
     /**
+     * N per group: Select the user's conversations and their last messages.
      * @param User $user Owner or participant.
+     * @param int $nbLatestMessages Number of last messages per group.
      * @return Conversation[]
      */
-    public function findForUser(User $user): array
+    public function findForUserWithLastMessages(User $user, int $nbLatestMessages = 1): array
     {
-        $qb = $this->createQueryBuilder('conversation')
-            ->innerJoin('conversation.participants', 'participants');
+        $conn = $this->getEntityManager()->getConnection();
 
-        return $qb->getQuery()->getResult();
+        $sql = <<<SQL
+SELECT 
+    *
+    , `creator`.`id`                                                                         as `creator_id`
+    , `creator`.`username`                                                                   as `creator_username`
+    FROM (SELECT
+                    `c`.`id`                                                                 as `conversation_id`
+                  , `c`.`updated_at`                                                         as `conversation_updated_at`
+                  , `c`.`created_at`                                                         as `conversation_created_at`
+                  , `c`.`is_empty`                                                           as `conversation_is_empty`
+                  , `m`.`id`                                                                 as `message_id`
+                  , `m`.`body`                                                               as `message_body`
+                  , `m`.`created_at`                                                         as `message_created_at`
+                  , `m`.`creator_id`                                                         as `message_creator_id`
+                  , row_number() OVER (PARTITION BY `c`.`id` ORDER BY `m`.`created_at` DESC) as `con_rank`
+        FROM `conversation` AS `c`
+            INNER JOIN `conversation_user` AS `cu` on `c`.`id` = `cu`.`conversation_id`
+            INNER JOIN `user` AS `u` ON `cu`.`user_id` = `u`.`id` AND `cu`.`user_id` = :userId
+            LEFT JOIN `message` AS `m` ON `c`.`id` = `m`.`conversation_id`
+    ) AS `ranks`
+INNER JOIN `user` AS `creator` ON `creator`.`id` = `message_creator_id`
+WHERE `ranks`.`con_rank` <= :nbLastMessages
+SQL;
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([
+            'userId' => $user->getId(),
+            'nbLastMessages' => $nbLatestMessages,
+        ]);
+        $messageRows = $stmt->fetchAllAssociative();
+
+        $dataTransfers = $this->dataTransfer::hydrateWindowFunctionOverMessages($messageRows);
+
+        return Conversation::buildManyFromDataTransfers($dataTransfers);
     }
-//select *
-//from (
-//select c.id                                                        as con_id
-//, u.username
-//, m.body
-//, m.id
-//, row_number() over (partition by c.id order by m.created_at) as con_rank
-//from conversation as c
-//inner join conversation_user cu on c.id = cu.conversation_id
-//inner join user u on cu.user_id = u.id
-//left join message m on c.id = m.conversation_id
-//where u.id = 1
-//) ranks
-//where con_rank <= 1
 }

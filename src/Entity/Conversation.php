@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\DataTransferObject\ConversationDataTransfer;
 use App\Repository\ConversationRepository;
 use DateTime;
 use DateTimeInterface;
@@ -37,17 +38,19 @@ class Conversation
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"conversations:read"})
      */
     private $isEmpty = true;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="conversations")
-     * @Groups({"conversations:read"})
+     * @Groups({"users:search"})
      */
     private $participants;
 
     /**
      * @ORM\OneToMany(targetEntity=Message::class, mappedBy="conversation", orphanRemoval=true)
+     * @Groups({"messages:read"})
      */
     private $messages;
 
@@ -58,6 +61,39 @@ class Conversation
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
         $this->messages = new ArrayCollection();
+    }
+
+    /**
+     * @param ConversationDataTransfer[] $dataTransfers
+     * @return array
+     */
+    public static function buildManyFromDataTransfers(array $dataTransfers): array
+    {
+        return array_map(function (ConversationDataTransfer $dataTransfer) {
+            return static::buildFromDataTransfer($dataTransfer);
+        }, $dataTransfers);
+    }
+
+    /**
+     * Build an instance using data transfer object.
+     * @param ConversationDataTransfer $dataTransfer Data transfer object which values are used while hydration.
+     * @return static Entity instance.
+     */
+    public static function buildFromDataTransfer(ConversationDataTransfer $dataTransfer): self
+    {
+        $conversation = new static();
+
+        $conversation->id = $dataTransfer->getId();
+        $conversation->setCreatedAt($dataTransfer->getCreatedAt());
+        $conversation->setUpdatedAt($dataTransfer->getUpdatedAt());
+        $conversation->setIsEmpty($dataTransfer->isEmpty());
+
+        $messageDataTransfers = $dataTransfer->getMessages();
+        foreach ($messageDataTransfers as $messageDataTransfer) {
+            $conversation->addMessage(Message::buildFromDataTransfer($messageDataTransfer));
+        }
+
+        return $conversation;
     }
 
     public function getId(): ?int
