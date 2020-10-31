@@ -29,6 +29,9 @@ security:
             logout:
                 path: app_logout
                 target: index
+            remember_me:
+                secret: '%kernel.secret%'
+                remember_me_parameter: _remember_me
 
     access_control:
     # - { path: ^/admin, roles: ROLE_ADMIN }

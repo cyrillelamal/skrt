@@ -4,8 +4,10 @@ namespace App\Entity;
 
 use App\DataTransferObject\MessageDataTransfer;
 use App\Repository\MessageRepository;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 /**
  * @ORM\Entity(repositoryClass=MessageRepository::class)
@@ -29,6 +31,7 @@ class Message
     /**
      * @ORM\Column(type="datetime")
      * @Groups({"messages:read"})
+     * @SerializedName("created_at")
      */
     private $createdAt;
 
@@ -74,12 +77,12 @@ class Message
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function setCreatedAt(DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
 

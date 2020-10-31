@@ -15,18 +15,43 @@ use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
 class RegistrationController extends AbstractController
 {
     /**
-     * @Route("/register", name="app_register")
+     * @var UserPasswordEncoderInterface
      */
-    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, LoginFormAuthenticator $authenticator): Response
+    private $passwordEncoder;
+    /**
+     * @var GuardAuthenticatorHandler
+     */
+    private $guardHandler;
+    /**
+     * @var LoginFormAuthenticator
+     */
+    private $authenticator;
+
+    public function __construct(
+        UserPasswordEncoderInterface $passwordEncoder,
+        GuardAuthenticatorHandler $guardHandler,
+        LoginFormAuthenticator $authenticator
+    )
+    {
+        $this->passwordEncoder = $passwordEncoder;
+        $this->guardHandler = $guardHandler;
+        $this->authenticator = $authenticator;
+    }
+
+    /**
+     * @Route("/register", name="app_register")
+     * @param Request $request
+     * @return Response
+     */
+    public function register(Request $request): Response
     {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
             $user->setPassword(
-                $passwordEncoder->encodePassword(
+                $this->passwordEncoder->encodePassword(
                     $user,
                     $form->get('plainPassword')->getData()
                 )
@@ -35,12 +60,11 @@ class RegistrationController extends AbstractController
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
-            // do anything else you need here, like send an email
 
-            return $guardHandler->authenticateUserAndHandleSuccess(
+            return $this->guardHandler->authenticateUserAndHandleSuccess(
                 $user,
                 $request,
-                $authenticator,
+                $this->authenticator,
                 'main' // firewall name in security.yaml
             );
         }

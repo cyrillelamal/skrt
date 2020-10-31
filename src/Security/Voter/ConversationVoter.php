@@ -27,7 +27,7 @@ class ConversationVoter extends Voter
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
         if (!$attribute instanceof Conversation) {
-            throw new LogicException("Conversation voter votes only on \"Conversation\" entities.");
+            throw new LogicException("ConversationPreview voter votes only on \"ConversationPreview\" entities.");
         }
 
         /** @var User $user */

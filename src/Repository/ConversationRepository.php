@@ -37,7 +37,24 @@ class ConversationRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        $sql = <<<SQL
+        $sql = $this->getSqlFindForUserWithLatestMessages();
+        $params = [
+            'userId' => $user->getId(),
+            'nbLastMessages' => $nbLatestMessages,
+        ];
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($params);
+        $messageRows = $stmt->fetchAllAssociative();
+
+        $dataTransfers = $this->dataTransfer::hydrateWindowFunctionOverMessages($messageRows);
+
+        return Conversation::buildManyFromDataTransfers($dataTransfers);
+    }
+
+    protected function getSqlFindForUserWithLatestMessages(): string
+    {
+        return <<<SQL
 SELECT 
     *
     , `creator`.`id`                                                                         as `creator_id`
@@ -47,29 +64,20 @@ SELECT
                   , `c`.`updated_at`                                                         as `conversation_updated_at`
                   , `c`.`created_at`                                                         as `conversation_created_at`
                   , `c`.`is_empty`                                                           as `conversation_is_empty`
+                  , `c`.`title`                                                              as `conversation_title`
                   , `m`.`id`                                                                 as `message_id`
                   , `m`.`body`                                                               as `message_body`
                   , `m`.`created_at`                                                         as `message_created_at`
                   , `m`.`creator_id`                                                         as `message_creator_id`
                   , row_number() OVER (PARTITION BY `c`.`id` ORDER BY `m`.`created_at` DESC) as `con_rank`
         FROM `conversation` AS `c`
-            INNER JOIN `conversation_user` AS `cu` on `c`.`id` = `cu`.`conversation_id`
+            INNER JOIN `conversation_user` AS `cu` ON `c`.`id` = `cu`.`conversation_id`
             INNER JOIN `user` AS `u` ON `cu`.`user_id` = `u`.`id` AND `cu`.`user_id` = :userId
             LEFT JOIN `message` AS `m` ON `c`.`id` = `m`.`conversation_id`
     ) AS `ranks`
-INNER JOIN `user` AS `creator` ON `creator`.`id` = `message_creator_id`
+LEFT JOIN `user` AS `creator` ON `creator`.`id` = `ranks`.`message_creator_id`
 WHERE `ranks`.`con_rank` <= :nbLastMessages
+ORDER BY `ranks`.`conversation_updated_at` DESC
 SQL;
-
-        $stmt = $conn->prepare($sql);
-        $stmt->execute([
-            'userId' => $user->getId(),
-            'nbLastMessages' => $nbLatestMessages,
-        ]);
-        $messageRows = $stmt->fetchAllAssociative();
-
-        $dataTransfers = $this->dataTransfer::hydrateWindowFunctionOverMessages($messageRows);
-
-        return Conversation::buildManyFromDataTransfers($dataTransfers);
     }
 }

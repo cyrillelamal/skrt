@@ -16,6 +16,7 @@ class ConversationDataTransfer
     private $createdAt;
     private $isEmpty = true;
     private $messages = [];
+    private $title = '';
 
     /**
      * Hydrate multiple instances of messages and conversations.
@@ -57,6 +58,7 @@ class ConversationDataTransfer
         $conversation->setUpdatedAt(DateTime::createFromFormat(self::DATETIME_FORMAT, $data['conversation_updated_at']));
         $conversation->setCreatedAt(DateTime::createFromFormat(self::DATETIME_FORMAT, $data['conversation_created_at']));
         $conversation->setIsEmpty((bool)$data['conversation_is_empty']);
+        $conversation->setTitle((string)$data['conversation_title']);
 
         return $conversation;
     }
@@ -112,5 +114,15 @@ class ConversationDataTransfer
     protected function addMessage(MessageDataTransfer $message): void
     {
         $this->messages[] = $message;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
     }
 }

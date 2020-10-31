@@ -42,21 +42,22 @@ class ConversationController extends AbstractController
     public function store(Request $request): JsonResponse
     {
         $usernames = $request->request->get('usernames', array());
-        $users = array_merge(
+        $participants = array_merge(
             [$this->getUser()], // Initiator
             $this->userRepository->findWhereUsernameIn($usernames) // Receivers
         );
 
-        if (!$users) {
+        if (count($participants) === 1) {
             return $this->json([
                 'error' => 'Users do not exist',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $conversation = new Conversation();
-        foreach ($users as $user) {
+        foreach ($participants as $user) {
             $conversation->addParticipant($user);
         }
+        $conversation->setTitle($conversation->generateTitle());
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($conversation);

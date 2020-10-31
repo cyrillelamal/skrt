@@ -10,12 +10,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 /**
  * @ORM\Entity(repositoryClass=ConversationRepository::class)
  */
 class Conversation
 {
+    public const TITLE_MAX_LENGTH = 511;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -27,24 +29,26 @@ class Conversation
     /**
      * @ORM\Column(type="datetime")
      * @Groups({"conversations:read"})
+     * @SerializedName("updated_at")
      */
     private $updatedAt;
 
     /**
      * @ORM\Column(type="datetime")
      * @Groups({"conversations:read"})
+     * @SerializedName("created_at")
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="boolean")
      * @Groups({"conversations:read"})
+     * @SerializedName("empty")
      */
     private $isEmpty = true;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="conversations")
-     * @Groups({"users:search"})
      */
     private $participants;
 
@@ -54,10 +58,15 @@ class Conversation
      */
     private $messages;
 
+    /**
+     * @ORM\Column(type="string", length=511)
+     * @Groups({"conversations:read"})
+     */
+    private $title;
+
     public function __construct()
     {
         $this->participants = new ArrayCollection();
-
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
         $this->messages = new ArrayCollection();
@@ -71,7 +80,7 @@ class Conversation
     {
         return array_map(function (ConversationDataTransfer $dataTransfer) {
             return static::buildFromDataTransfer($dataTransfer);
-        }, $dataTransfers);
+        }, array_values($dataTransfers));
     }
 
     /**
@@ -87,6 +96,7 @@ class Conversation
         $conversation->setCreatedAt($dataTransfer->getCreatedAt());
         $conversation->setUpdatedAt($dataTransfer->getUpdatedAt());
         $conversation->setIsEmpty($dataTransfer->isEmpty());
+        $conversation->setTitle($dataTransfer->getTitle());
 
         $messageDataTransfers = $dataTransfer->getMessages();
         foreach ($messageDataTransfers as $messageDataTransfer) {
@@ -94,6 +104,36 @@ class Conversation
         }
 
         return $conversation;
+    }
+
+    /**
+     * Return title based on the usernames of the users.
+     * @return string
+     */
+    public function generateTitle(): string
+    {
+        $participants = $this->getParticipants();
+
+        if ($participants->count() === 2) {
+            /** @var User $receiver */
+            $receiver = $participants->get(1);
+
+            return $receiver->getUsername();
+        }
+
+        $title = '';
+        /** @var User $participant */
+        foreach ($participants->toArray() as $participant) {
+            $tmp = "$title, {$participant->getUsername()}";
+
+            if (mb_strlen($tmp) > self::TITLE_MAX_LENGTH) {
+                return $title;
+            }
+
+            $title = $tmp;
+        }
+
+        return $title;
     }
 
     public function getId(): ?int
@@ -187,6 +227,18 @@ class Conversation
                 $message->setConversation(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
 
         return $this;
     }

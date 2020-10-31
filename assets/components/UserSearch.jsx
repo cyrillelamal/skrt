@@ -16,6 +16,7 @@ export class UserSearch extends React.Component {
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+
         this.showUsers = this.showUsers.bind(this);
         this.hideUsers = this.hideUsers.bind(this);
         this.selectUser = this.selectUser.bind(this);
