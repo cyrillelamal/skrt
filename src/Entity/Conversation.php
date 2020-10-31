@@ -219,6 +219,13 @@ class Conversation
         return $this;
     }
 
+    public function setMessages(array $messages): self
+    {
+        $this->messages = new ArrayCollection($messages);
+
+        return $this;
+    }
+
     public function removeMessage(Message $message): self
     {
         if ($this->messages->removeElement($message)) {

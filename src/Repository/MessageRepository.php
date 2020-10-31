@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Conversation;
 use App\Entity\Message;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -17,6 +18,19 @@ class MessageRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Message::class);
+    }
+
+    public function findForConversation(Conversation $conversation): array
+    {
+        $qb = $this->createQueryBuilder('message');
+
+        $qb
+            ->where('message.conversation = :conversation')
+            ->setParameter('conversation', $conversation)
+            ->leftJoin('message.conversation', 'conversation')
+            ->orderBy('message.createdAt', 'ASC');
+
+        return $qb->getQuery()->getResult();
     }
 
     // /**

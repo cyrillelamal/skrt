@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\DataTransferObject\MessageDataTransfer;
 use App\Repository\MessageRepository;
+use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -47,6 +48,11 @@ class Message
      * @Groups({"users:search"})
      */
     private $creator;
+
+    public function __construct()
+    {
+        $this->setCreatedAt(new DateTime());
+    }
 
     public static function buildFromDataTransfer(MessageDataTransfer $dataTransfer): self
     {

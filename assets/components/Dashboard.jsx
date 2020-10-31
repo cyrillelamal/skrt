@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import {UserSearch} from "./UserSearch";
 import {ConversationPreview} from './ConversationPreview';
+import {Conversation} from "./Conversation";
 
 export class Dashboard extends React.Component {
     constructor(props) {
@@ -10,45 +11,27 @@ export class Dashboard extends React.Component {
         this.state = {
             username: '', // Search
             conversations: [],
-            curConversation: null,
+            conversation: null,
         };
 
         this.setUsername = this.setUsername.bind(this);
-        this.setCurConversation = this.setCurConversation.bind(this);
+        this.setConversation = this.setConversation.bind(this);
     }
 
     componentDidMount() {
         axios.get('/api/conversations')
             .then(res => this.setState({conversations: res.data}))
             .catch(err => console.error(err));
+
+        axios.get('/api/users/reflect')
+            .then(res => localStorage.setItem('userId', res.data.id))
+            .catch(() => localStorage.setItem('userId', null));
     }
 
     setUsername(username) {
         this.setState({username});
 
         this.initiateConversation([username]);
-    }
-
-    setCurConversation(id) {
-        this.setState(curState => {
-            if (curState.curConversation === id) {
-                return {};
-            } else {
-                axios.get('/api/messages', {
-                    params: {
-                        conversation_id: id,
-                    }
-                }).then(res => {
-                    console.log(res, res.data)
-                }).catch(err => {
-                    console.error(err)
-                })
-                
-                return {
-                    curConversation: id
-                }
-            }
-        });
     }
 
     initiateConversation(usernames) {
@@ -61,9 +44,21 @@ export class Dashboard extends React.Component {
             .catch(err => console.error(err));
     }
 
-    render() {
-        console.log(this.state)
+    setConversation(id) {
+        this.setState(curState => {
+            if (curState.conversation && curState.conversation.id === id) {
+                return {};
+            } else {
+                axios.get(`/api/conversations/${id}`)
+                    .then(res => this.setState({conversation: res.data}))
+                    .catch(err => console.log(err));
 
+                return {curConversationId: id};
+            }
+        });
+    }
+
+    render() {
         return (
             <main className="section">
                 <div className="container is-fluid">
@@ -78,14 +73,16 @@ export class Dashboard extends React.Component {
                                 <ConversationPreview
                                     key={conversation.id}
                                     conversation={conversation}
-                                    setCurConversation={this.setCurConversation}
+                                    setConversation={this.setConversation}
                                 />
                             ))}
                             </div>
                         </div>
                         <div className="tile is-parent">
-                            <div className="tile is-child box">
-                                messages
+                            <div className="tile is-child box p-0">
+                                <Conversation
+                                    conversation={this.state.conversation}
+                                />
                             </div>
                         </div>
                     </div>

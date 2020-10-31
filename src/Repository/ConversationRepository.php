@@ -27,6 +27,16 @@ class ConversationRepository extends ServiceEntityRepository
         $this->dataTransfer = $dataTransfer;
     }
 
+    public function findWithParticipants(int $id): ?Conversation
+    {
+        $qb = $this->createQueryBuilder('conversation');
+
+        $qb->where('conversation.id = :id')->setParameter('id', $id);
+        $qb->leftJoin('conversation.participants', 'participants');
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
     /**
      * N per group: Select the user's conversations and their last messages.
      * @param User $user Owner or participant.

@@ -7,13 +7,7 @@ export class ConversationPreview extends React.Component {
 
         const {conversation} = props;
 
-        this.state = {
-            id: conversation.id,
-            updated_at: conversation.updated_at,
-            empty: conversation.empty,
-            title: conversation.title,
-            messages: conversation.messages,
-        };
+        this.conversation = conversation;
 
         this.handleClick = this.handleClick.bind(this);
     }
@@ -21,21 +15,22 @@ export class ConversationPreview extends React.Component {
     handleClick(event) {
         event.preventDefault();
 
-        this.props.setCurConversation(this.state.id);
+        this.props.setConversation(this.conversation.id);
     }
 
     render() {
-        const updatedAt = moment(this.state.updated_at).format('DD/MM/YYYY HH:mm:ss');
+        const updatedAt = moment(this.conversation.updated_at).format('DD/MM/YYYY HH:mm:ss');
 
         return (
-            <article className="media m-0 p-0" onClick={this.handleClick}>
+            <article className="media m-0 p-0 has-grab-cursor" onClick={this.handleClick}>
                 <div className="media-content p-3">
                     <div className="content">
                         <p>
-                            <strong>{this.state.title}</strong> <small>{updatedAt}</small><br/>{this.state.empty ? (
+                            <strong>{this.conversation.title}</strong>
+                            <small>{updatedAt}</small><br/>{this.conversation.empty ? (
                             <>Empty</>
                         ) : (
-                            <>{this.state.messages[0].body}</>
+                            <>{this.conversation.messages[0].body}</>
                         )}
                         </p>
                     </div>

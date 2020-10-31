@@ -12,10 +12,11 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class ConversationVoter extends Voter
 {
     public const SUPPORTED_ACTIONS = [
-        'CREATE',
-        'SHOW',
-        'UPDATE',
-        'DELETE',
+//        'create',
+        'show',
+        'post',
+//        'update',
+//        'destroy',
     ];
 
     protected function supports($attribute, $subject)
@@ -26,7 +27,7 @@ class ConversationVoter extends Voter
 
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
-        if (!$attribute instanceof Conversation) {
+        if (!$subject instanceof Conversation) {
             throw new LogicException("ConversationPreview voter votes only on \"ConversationPreview\" entities.");
         }
 
@@ -37,8 +38,9 @@ class ConversationVoter extends Voter
         }
 
         switch ($attribute) {
-            case 'POST_EDIT':
-                return $this->canShow($user, $attribute);
+            case 'post':
+            case 'show':
+                return $this->canShow($user, $subject);
         }
 
         return false;

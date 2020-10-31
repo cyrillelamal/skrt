@@ -32,14 +32,15 @@ class ConversationDataTransfer
             $conversationId = $messageRow['conversation_id'];
             $key = sprintf('_%s', $conversationId);
 
-            if ($conversation = $conversations[$key] ?? null) {
-                // The selection is executed OVER messages!
-                $message = MessageDataTransfer::hydrate($messageRow);
 
-                $conversation->addMessage($message);
-            } else {
-                $conversations[$key] = static::hydrate($messageRow);
-            }
+            $conversation = isset($conversations[$key])
+                ? $conversations[$key]
+                : static::hydrate($messageRow);
+
+            $message = MessageDataTransfer::hydrate($messageRow);
+            $conversation->addMessage($message);
+
+            $conversations[$key] = $conversation;
         }
 
         return $conversations;

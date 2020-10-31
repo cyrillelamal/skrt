@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,9 +30,9 @@ class UserController extends AbstractController
      * @Route("/", name="read", methods={"GET"})
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @param Request $request
-     * @return Response
+     * @return JsonResponse
      */
-    public function read(Request $request): Response
+    public function read(Request $request): JsonResponse
     {
         /** @var User $currentUser */
         $currentUser = $this->getUser();
@@ -51,5 +52,20 @@ class UserController extends AbstractController
             array(),
             ['groups' => ['users:search']]
         );
+    }
+
+    /**
+     * @Route("/reflect", name="reflect", methods={"GET"})
+     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
+     * @return JsonResponse
+     */
+    public function reflect(): JsonResponse
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        return $this->json([
+            'id' => $user->getId(),
+        ]);
     }
 }

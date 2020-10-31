@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Conversation;
 use App\Entity\User;
 use App\Repository\ConversationRepository;
+use App\Repository\MessageRepository;
 use App\Repository\UserRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,11 +27,20 @@ class ConversationController extends AbstractController
      * @var UserRepository
      */
     private $userRepository;
+    /**
+     * @var MessageRepository
+     */
+    private $messageRepository;
 
-    public function __construct(ConversationRepository $repository, UserRepository $userRepository)
+    public function __construct(
+        ConversationRepository $repository,
+        UserRepository $userRepository,
+        MessageRepository $messageRepository
+    )
     {
         $this->repository = $repository;
         $this->userRepository = $userRepository;
+        $this->messageRepository = $messageRepository;
     }
 
     /**
@@ -91,18 +101,21 @@ class ConversationController extends AbstractController
     }
 
     /**
-     * @Route("/read", name="show", methods={"GET"})
+     * @Route("/{id}", name="show", methods={"GET"})
      * @IsGranted("show", subject="conversation")
      * @param Conversation $conversation
      * @return JsonResponse
      */
     public function show(Conversation $conversation): JsonResponse
     {
+        $messages = $this->messageRepository->findForConversation($conversation);
+        $conversation->setMessages($messages);
+
         return $this->json(
             $conversation,
             Response::HTTP_OK,
             [],
-            ['groups' => ['conversations:read']]
+            ['groups' => ['conversations:read', 'messages:read', 'users:search']]
         );
     }
 
