@@ -106,24 +106,12 @@ class Conversation
     {
         $participants = $this->getParticipants();
 
-        if ($participants->count() === 2) {
-            /** @var User $receiver */
-            $receiver = $participants->get(1);
+        $usernames = array_map(function (User $participant) {
+            return $participant->getUsername();
+        }, $participants->toArray());
 
-            return $receiver->getUsername();
-        }
-
-        $title = '';
-        /** @var User $participant */
-        foreach ($participants->toArray() as $participant) {
-            $tmp = "$title, {$participant->getUsername()}";
-
-            if (mb_strlen($tmp) > self::TITLE_MAX_LENGTH) {
-                return $title;
-            }
-
-            $title = $tmp;
-        }
+        $title = join(', ', $usernames);
+        $title = mb_substr($title, 0, self::TITLE_MAX_LENGTH);
 
         return $title;
     }
@@ -153,18 +141,6 @@ class Conversation
     public function setCreatedAt(DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getIsEmpty(): ?bool
-    {
-        return $this->isEmpty;
-    }
-
-    public function setIsEmpty(bool $isEmpty): self
-    {
-        $this->isEmpty = $isEmpty;
 
         return $this;
     }

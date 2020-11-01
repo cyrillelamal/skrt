@@ -51,7 +51,6 @@ class MessageController extends AbstractController
             /** @var User $user */
             $user = $this->getUser();
 
-            $conversation->setIsEmpty(false);
             $message
                 ->setCreator($user)
                 ->setConversation($conversation);

@@ -59,7 +59,7 @@ class ConversationController extends AbstractController
 
         if (count($participants) === 1) {
             return $this->json([
-                'error' => 'Users do not exist',
+                'error' => 'Users do not exist.',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
