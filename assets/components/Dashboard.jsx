@@ -1,7 +1,6 @@
 import React from 'react';
 import axios from 'axios';
 import {UserSearch} from "./UserSearch";
-import {ConversationPreview} from './ConversationPreview';
 import {Conversation} from "./Conversation";
 import {ConversationList} from "./ConversationList";
 
@@ -10,7 +9,6 @@ export class Dashboard extends React.Component {
         super(props);
 
         this.state = {
-            username: '', // Search
             conversations: [],
             conversation: {},
         };
@@ -20,11 +18,9 @@ export class Dashboard extends React.Component {
     }
 
     componentDidMount() {
-        // axios.get('/api/conversations')
-        //     .then(res => {
-        //         this.setState({conversations: res.data})
-        //     })
-        //     .catch(err => console.error(err));
+        axios.get('/api/conversations')
+            .then(res => this.setState({conversations: res.data}))
+            .catch(err => console.error(err));
 
         axios.get('/api/users/reflect')
             .then(res => localStorage.setItem('userId', res.data.id))
@@ -48,16 +44,12 @@ export class Dashboard extends React.Component {
     }
 
     setConversation(id) {
-        this.setState(curState => {
-            if (curState.conversation && curState.conversation.id === id) {
-                return {};
-            } else {
-                axios.get(`/api/conversations/${id}`)
-                    .then(res => this.setState({conversation: res.data}))
-                    .catch(err => console.log(err));
-
-                return {curConversationId: id};
+        this.setState(state => {
+            if (state.conversation.id !== id) {
+                this.fetchConversation(id);
             }
+
+            return {};
         });
     }
 
@@ -78,10 +70,15 @@ export class Dashboard extends React.Component {
                     <div className="columns">
                         <div className="column is-4">
                             <UserSearch/>
-                            <ConversationList/>
+                            <ConversationList
+                                setConversation={this.setConversation}
+                                conversations={this.state.conversations}
+                            />
                         </div>
                         <div className="column is-8">
-                            <Conversation {...this.state.conversation}/>
+                            <Conversation
+                                {...this.state.conversation}
+                            />
                         </div>
                     </div>
                 </div>

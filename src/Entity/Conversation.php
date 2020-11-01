@@ -41,13 +41,6 @@ class Conversation
     private $createdAt;
 
     /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"conversations:read"})
-     * @SerializedName("empty")
-     */
-    private $isEmpty = true;
-
-    /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="conversations")
      */
     private $participants;
@@ -95,7 +88,6 @@ class Conversation
         $conversation->id = $dataTransfer->getId();
         $conversation->setCreatedAt($dataTransfer->getCreatedAt());
         $conversation->setUpdatedAt($dataTransfer->getUpdatedAt());
-        $conversation->setIsEmpty($dataTransfer->isEmpty());
         $conversation->setTitle($dataTransfer->getTitle());
 
         $messageDataTransfers = $dataTransfer->getMessages();

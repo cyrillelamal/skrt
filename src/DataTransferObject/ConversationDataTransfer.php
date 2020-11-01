@@ -14,7 +14,6 @@ class ConversationDataTransfer
     private $id;
     private $updatedAt;
     private $createdAt;
-    private $isEmpty = true;
     private $messages = [];
     private $title = '';
 
@@ -32,13 +31,12 @@ class ConversationDataTransfer
             $conversationId = $messageRow['conversation_id'];
             $key = sprintf('_%s', $conversationId);
 
+            $conversation = $conversations[$key] ?? static::hydrate($messageRow);
 
-            $conversation = isset($conversations[$key])
-                ? $conversations[$key]
-                : static::hydrate($messageRow);
-
-            $message = MessageDataTransfer::hydrate($messageRow);
-            $conversation->addMessage($message);
+            if (isset($messageRow['message_id'])) {
+                $message = MessageDataTransfer::hydrate($messageRow);
+                $conversation->addMessage($message);
+            }
 
             $conversations[$key] = $conversation;
         }
@@ -58,7 +56,6 @@ class ConversationDataTransfer
         $conversation->setId((int)$data['conversation_id']);
         $conversation->setUpdatedAt(DateTime::createFromFormat(self::DATETIME_FORMAT, $data['conversation_updated_at']));
         $conversation->setCreatedAt(DateTime::createFromFormat(self::DATETIME_FORMAT, $data['conversation_created_at']));
-        $conversation->setIsEmpty((bool)$data['conversation_is_empty']);
         $conversation->setTitle((string)$data['conversation_title']);
 
         return $conversation;
@@ -92,16 +89,6 @@ class ConversationDataTransfer
     public function setCreatedAt(DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
-    }
-
-    public function isEmpty(): ?bool
-    {
-        return $this->isEmpty;
-    }
-
-    public function setIsEmpty(bool $isEmpty): void
-    {
-        $this->isEmpty = $isEmpty;
     }
 
     /**

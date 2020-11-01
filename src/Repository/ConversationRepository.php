@@ -73,7 +73,6 @@ SELECT
                     `c`.`id`                                                                 as `conversation_id`
                   , `c`.`updated_at`                                                         as `conversation_updated_at`
                   , `c`.`created_at`                                                         as `conversation_created_at`
-                  , `c`.`is_empty`                                                           as `conversation_is_empty`
                   , `c`.`title`                                                              as `conversation_title`
                   , `m`.`id`                                                                 as `message_id`
                   , `m`.`body`                                                               as `message_body`

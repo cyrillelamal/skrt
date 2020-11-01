@@ -83,27 +83,28 @@ export class UserSearch extends React.Component {
     render() {
         return (
             <div className="block">
-                <form onSubmit={this.handleSubmit}>
-                    <input
-                        ref={this.inputRef}
-                        value={this.state.username}
-                        onChange={this.handleChange}
-                        onClick={this.showUsers}
-                        className={`input ${this.state.inputClass} is-expanded`}
-                        type="text" placeholder="Find a user"
-                    />
-                </form>
-                <nav className="panel">
-                    {!this.state.hideUsers && this.state.users.map(user => (
-                        <a href="#" key={user.id} className="panel-block" onClick={this.selectUser}>{user.username}</a>
-                    ))}
-                    {!this.state.hideUsers && this.state.users.length > 0 && (
-                        <div className="panel-block">
-                            <button onClick={this.hideUsers} className="button is-link is-outlined is-fullwidth">Hide
-                            </button>
-                        </div>
-                    )}
-                </nav>
+                <h1 className="title">Search user</h1>
+                {/*<form onSubmit={this.handleSubmit}>*/}
+                {/*    <input*/}
+                {/*        ref={this.inputRef}*/}
+                {/*        value={this.state.username}*/}
+                {/*        onChange={this.handleChange}*/}
+                {/*        onClick={this.showUsers}*/}
+                {/*        className={`input ${this.state.inputClass} is-expanded`}*/}
+                {/*        type="text" placeholder="Find a user"*/}
+                {/*    />*/}
+                {/*</form>*/}
+                {/*<nav className="panel">*/}
+                {/*    {!this.state.hideUsers && this.state.users.map(user => (*/}
+                {/*        <a href="#" key={user.id} className="panel-block" onClick={this.selectUser}>{user.username}</a>*/}
+                {/*    ))}*/}
+                {/*    {!this.state.hideUsers && this.state.users.length > 0 && (*/}
+                {/*        <div className="panel-block">*/}
+                {/*            <button onClick={this.hideUsers} className="button is-link is-outlined is-fullwidth">Hide*/}
+                {/*            </button>*/}
+                {/*        </div>*/}
+                {/*    )}*/}
+                {/*</nav>*/}
             </div>
         );
     }
