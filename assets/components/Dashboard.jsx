@@ -15,6 +15,8 @@ export class Dashboard extends React.Component {
 
         this.initiateConversation = this.initiateConversation.bind(this);
         this.setConversation = this.setConversation.bind(this);
+
+        this.eventSource = null;
     }
 
     componentDidMount() {
@@ -23,8 +25,46 @@ export class Dashboard extends React.Component {
             .catch(err => console.error(err));
 
         axios.get('/api/users/reflect')
-            .then(res => localStorage.setItem('userId', res.data.id))
+            .then(res => {
+                this.subscribeToMercure(res.data.id);
+                localStorage.setItem('userId', res.data.id)
+            })
             .catch(() => localStorage.setItem('userId', null));
+    }
+
+    componentWillUnmount() {
+        if (this.eventSource) {
+            this.eventSource.close();
+        }
+    }
+
+    subscribeToMercure(id) {
+        const url = new URL('http://localhost:3000/.well-known/mercure');
+        url.searchParams.append('topic', `http://users/${id}`);
+
+        this.eventSource = new EventSource(url.toString());
+        this.eventSource.onmessage = message => this.handleMercureMessage(message);
+    }
+
+    handleMercureMessage(message) {
+        const data = JSON.parse(message.data);
+
+        this.setState(state => {
+            console.log(data)
+
+            // const {conversations} = state;
+            //
+            // const currentConversation = conversations.find(c => c.id === data.id);
+            //
+            // const mutatedConversation = Object.assign({}, currentConversation);
+            // mutatedConversation.updated_at = data.updated_at;
+            // mutatedConversation.messages = [...currentConversation.messages, ...data.messages];
+            //
+            // return {
+            //     conversations: conversations.map(c => c.id === data.id ? mutatedConversation : c),
+            //     conversation: state.conversation.id === mutatedConversation.id ? mutatedConversation : state.conversation,
+            // };
+        });
     }
 
     initiateConversation(usernames) {

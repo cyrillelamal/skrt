@@ -33,6 +33,10 @@ class MessageCreatedSubscriber implements EventSubscriberInterface
         $this->serializer = $serializer;
     }
 
+    /**
+     * Send the updated conversation to the mercure subscribers.
+     * @param MessageCreatedEvent $event
+     */
     public function onMessageCreated(MessageCreatedEvent $event)
     {
         $message = $event->getMessage();
@@ -43,14 +47,16 @@ class MessageCreatedSubscriber implements EventSubscriberInterface
         $participants = array_filter($participants, function (User $participant) use ($sender) {
             return $participant->getId() !== $sender->getId();
         });
+        $conversation = $message->getConversation();
+        $conversation->setMessages([$message]); // Only the last one.
 
         $topics = array_map(function (User $participant) {
             return "http://users/{$participant->getId()}";
         }, $participants);
-        $data = $this->serializer->serialize($message, 'json', array_merge([
+        $data = $this->serializer->serialize($conversation, 'json', array_merge([
             'json_encode_options' => JsonResponse::DEFAULT_ENCODING_OPTIONS
         ], [
-            'groups' => ['messages:read', 'users:search']
+            'groups' => ['messages:read', 'users:search', 'conversations:read']
         ]));
 
         $update = new Update($topics, $data);

@@ -9,6 +9,7 @@ use App\Event\MessageCreatedEvent;
 use App\Form\MessageType;
 use App\Repository\ConversationRepository;
 use App\Service\FormUtils;
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -64,6 +65,7 @@ class MessageController extends AbstractController
             $message
                 ->setCreator($user)
                 ->setConversation($conversation);
+            $conversation->setUpdatedAt(new DateTime());
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($message);
