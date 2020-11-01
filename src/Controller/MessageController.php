@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Conversation;
 use App\Entity\Message;
 use App\Entity\User;
+use App\Event\MessageCreatedEvent;
 use App\Form\MessageType;
 use App\Repository\ConversationRepository;
 use App\Service\FormUtils;
@@ -12,6 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @Route("/api/messages", name="messages_")
@@ -22,10 +24,18 @@ class MessageController extends AbstractController
      * @var ConversationRepository
      */
     private $conversationRepository;
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
-    public function __construct(ConversationRepository $conversationRepository)
+    public function __construct(
+        ConversationRepository $conversationRepository,
+        EventDispatcherInterface $eventDispatcher
+    )
     {
         $this->conversationRepository = $conversationRepository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -58,6 +68,8 @@ class MessageController extends AbstractController
             $em = $this->getDoctrine()->getManager();
             $em->persist($message);
             $em->flush();
+
+            $this->eventDispatcher->dispatch(new MessageCreatedEvent($message), MessageCreatedEvent::NAME);
 
             return $this->json(
                 $message,

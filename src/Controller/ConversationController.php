@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Repository\ConversationRepository;
 use App\Repository\MessageRepository;
 use App\Repository\UserRepository;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,16 +32,22 @@ class ConversationController extends AbstractController
      * @var MessageRepository
      */
     private $messageRepository;
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
     public function __construct(
         ConversationRepository $repository,
         UserRepository $userRepository,
-        MessageRepository $messageRepository
+        MessageRepository $messageRepository,
+        EventDispatcherInterface $eventDispatcher
     )
     {
         $this->repository = $repository;
         $this->userRepository = $userRepository;
         $this->messageRepository = $messageRepository;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -119,11 +126,11 @@ class ConversationController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/{id}", name="destroy", methods={"DELETE"})
-     */
-    public function destroy(): Response
-    {
-
-    }
+//    /**
+//     * @Route("/{id}", name="destroy", methods={"DELETE"})
+//     */
+//    public function destroy(): Response
+//    {
+//
+//    }
 }
