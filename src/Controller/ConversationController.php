@@ -77,7 +77,7 @@ class ConversationController extends AbstractController
             $conversation,
             Response::HTTP_CREATED,
             array(),
-            ['groups' => ['conversations:read', 'users:search']]
+            ['groups' => ['conversations:read', 'messages:read', 'users:search']]
         );
     }
 

@@ -13,7 +13,7 @@ export class Dashboard extends React.Component {
             conversation: {},
         };
 
-        this.setUsername = this.setUsername.bind(this);
+        this.initiateConversation = this.initiateConversation.bind(this);
         this.setConversation = this.setConversation.bind(this);
     }
 
@@ -27,17 +27,11 @@ export class Dashboard extends React.Component {
             .catch(() => localStorage.setItem('userId', null));
     }
 
-    setUsername(username) {
-        this.setState({username});
-
-        this.initiateConversation([username]);
-    }
-
     initiateConversation(usernames) {
         axios.post('/api/conversations/', {usernames})
             .then(res => {
-                this.setState(curState => {
-                    return {conversations: [res.data, ...curState.conversations]};
+                this.setState(state => {
+                    return {conversations: [res.data, ...state.conversations]};
                 });
             })
             .catch(err => console.error(err));
@@ -69,7 +63,9 @@ export class Dashboard extends React.Component {
                 <div className="container is-fluid">
                     <div className="columns">
                         <div className="column is-4">
-                            <UserSearch/>
+                            <UserSearch
+                                initiateConversation={this.initiateConversation}
+                            />
                             <ConversationList
                                 setConversation={this.setConversation}
                                 conversations={this.state.conversations}
