@@ -3,6 +3,7 @@ import axios from 'axios';
 import {UserSearch} from "./UserSearch";
 import {ConversationPreview} from './ConversationPreview';
 import {Conversation} from "./Conversation";
+import {ConversationList} from "./ConversationList";
 
 export class Dashboard extends React.Component {
     constructor(props) {
@@ -11,7 +12,7 @@ export class Dashboard extends React.Component {
         this.state = {
             username: '', // Search
             conversations: [],
-            conversation: null,
+            conversation: {},
         };
 
         this.setUsername = this.setUsername.bind(this);
@@ -19,9 +20,11 @@ export class Dashboard extends React.Component {
     }
 
     componentDidMount() {
-        axios.get('/api/conversations')
-            .then(res => this.setState({conversations: res.data}))
-            .catch(err => console.error(err));
+        // axios.get('/api/conversations')
+        //     .then(res => {
+        //         this.setState({conversations: res.data})
+        //     })
+        //     .catch(err => console.error(err));
 
         axios.get('/api/users/reflect')
             .then(res => localStorage.setItem('userId', res.data.id))
@@ -58,32 +61,27 @@ export class Dashboard extends React.Component {
         });
     }
 
+    fetchConversation(id, offset = 0, limit = 25) {
+        axios.get(`/api/conversations/${id}`, {
+            params: {offset, limit}
+        }).then(res => {
+            this.setState({conversation: res.data});
+        }).catch(reason => {
+            console.error(reason);
+        });
+    }
+
     render() {
         return (
             <main className="section">
                 <div className="container is-fluid">
-                    <div className="tile is-ancestor">
-                        <div className="tile is-4 is-vertical is-parent">
-                            <div className="tile is-child box">
-                                <UserSearch
-                                    setUsername={this.setUsername}
-                                />
-                            </div>
-                            <div className="tile is-child box p-0">{this.state.conversations.map(conversation => (
-                                <ConversationPreview
-                                    key={conversation.id}
-                                    conversation={conversation}
-                                    setConversation={this.setConversation}
-                                />
-                            ))}
-                            </div>
+                    <div className="columns">
+                        <div className="column is-4">
+                            <UserSearch/>
+                            <ConversationList/>
                         </div>
-                        <div className="tile is-parent">
-                            <div className="tile is-child box p-0">
-                                <Conversation
-                                    conversation={this.state.conversation}
-                                />
-                            </div>
+                        <div className="column is-8">
+                            <Conversation {...this.state.conversation}/>
                         </div>
                     </div>
                 </div>

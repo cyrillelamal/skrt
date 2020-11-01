@@ -9,6 +9,8 @@ export class MessageForm extends React.Component {
             body: '',
         };
 
+        this.textareaRef = React.createRef();
+
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
@@ -16,14 +18,19 @@ export class MessageForm extends React.Component {
     handleSubmit(event) {
         event.preventDefault();
 
+        if (this.state.body.trim() === '') {
+            return null;
+        }
+
         axios.post('/api/messages/', {
             conversation_id: this.props.conversationId,
             body: this.state.body,
         })
-            .then(res => console.log(res))
+            .then(res => this.props.appendMessage(res.data))
             .catch(err => console.error(err));
 
         this.setState({body: ''});
+        this.textareaRef.current.focus();
     }
 
     handleChange(event) {
@@ -32,24 +39,29 @@ export class MessageForm extends React.Component {
 
     render() {
         return (
-            <form onSubmit={this.handleSubmit}>
-                <div className="field">
-                    <p className="control">
-                        <textarea
-                            name="body" id="body"
-                            className="textarea"
-                            value={this.state.body}
-                            onChange={this.handleChange}
-                            placeholder="Write a message..."
-                        />
-                    </p>
+            <article className="media">
+                <div className="media-content">
+                    <form onSubmit={this.handleSubmit}>
+                        <div className="field">
+                            <p className="control">
+                                <textarea
+                                    name="body" id="body"
+                                    className="textarea" rows="3"
+                                    value={this.state.body}
+                                    onChange={this.handleChange}
+                                    ref={this.textareaRef}
+                                    placeholder="Write a message..."
+                                />
+                            </p>
+                        </div>
+                        <div className="field">
+                            <div className="control">
+                                <button type="submit" className="button is-primary">Send</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div className="field">
-                    <div className="control">
-                        <button type="submit" className="button is-primary">Send</button>
-                    </div>
-                </div>
-            </form>
+            </article>
         );
     }
 }

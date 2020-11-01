@@ -1,6 +1,6 @@
 import React from 'react';
-import moment from 'moment';
 import {MessageForm} from "./MessageForm";
+import {Message} from "./Message";
 
 export class Conversation extends React.Component {
     constructor(props) {
@@ -9,54 +9,46 @@ export class Conversation extends React.Component {
         this.state = {
             messages: [],
         };
+
+        this.appendMessage = this.appendMessage.bind(this);
     }
 
-    getIntendClass(userId) {
-        return Number(userId) === Number(localStorage.getItem('userId'))
-            ? 'pl-5'
-            : 'pr-5';
-    }
+    appendMessage(message) {
+        this.setState(state => {
+            const messages = state.messages.length === 0
+                ? [...this.props.messages, message]
+                : [...state.messages, message];
 
-    // addMessage(message) {
-    //     this
-    // }
+            return {messages};
+        });
+    }
 
     render() {
-        if (!this.props.conversation) {
+        if (Object.keys(this.props) < 1) {
             return (
-                <h1 className="title p-5">Start messaging</h1>
+                <h1 className="title">Start messaging</h1>
             );
         }
 
-        const conversation = this.props.conversation;
-        const messages = conversation.messages;
+        const messages = this.state.messages.length === 0
+            ? this.props.messages
+            : this.state.messages;
 
         return (
-            <div className="block p-3">
-                <h2 className="subtitle">{conversation.title}</h2>
+            <div className="block">
+                <h2 className="subtitle">
+                    {this.props.title}
+                </h2>{messages.map(message => (
+                <Message
+                    key={message.id}
+                    {...message}
+                />
+            ))}
                 <hr/>
-                {messages.map(message => (
-                    <article key={message.id} className={`media ${this.getIntendClass(message.creator.id)}`}>
-                        <div className="media-content">
-                            <div className="content">
-                                <p>
-                                    <strong>{message.creator.username}</strong>
-                                    <small>{moment(message.created_at).format('DD/MM/YYYY HH:mm:ss')}</small>
-                                    <br/>
-                                    {message.body}
-                                </p>
-                            </div>
-                        </div>
-                    </article>
-                ))}
-                <article className="media">
-                    <div className="media-content">
-                        <MessageForm
-                            conversationId={this.props.conversation.id}
-                            // addMessage={this.addMessage}
-                        />
-                    </div>
-                </article>
+                <MessageForm
+                    conversationId={this.props.id}
+                    appendMessage={this.appendMessage}
+                />
             </div>
         );
     }

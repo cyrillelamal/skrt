@@ -130,7 +130,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
                 'access_token' => $accessToken
             ]);
         }
-        $response = new RedirectResponse($this->urlGenerator->generate('index'));
+        $response = new RedirectResponse($this->urlGenerator->generate('app_index'));
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             $response = new RedirectResponse($targetPath);
         }
