@@ -38,10 +38,10 @@ class ConversationController extends AbstractController
     private $eventDispatcher;
 
     public function __construct(
-        ConversationRepository $repository,
-        UserRepository $userRepository,
-        MessageRepository $messageRepository,
-        EventDispatcherInterface $eventDispatcher
+        ConversationRepository $repository
+        , UserRepository $userRepository
+        , MessageRepository $messageRepository
+        , EventDispatcherInterface $eventDispatcher
     )
     {
         $this->repository = $repository;

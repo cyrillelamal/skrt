@@ -26,7 +26,11 @@ class MessageCreatedSubscriber implements EventSubscriberInterface
      */
     private $serializer;
 
-    public function __construct(PublisherInterface $publisher, Security $security, SerializerInterface $serializer)
+    public function __construct(
+        PublisherInterface $publisher
+        , Security $security
+        , SerializerInterface $serializer
+    )
     {
         $this->publisher = $publisher;
         $this->security = $security;
@@ -40,15 +44,18 @@ class MessageCreatedSubscriber implements EventSubscriberInterface
     public function onMessageCreated(MessageCreatedEvent $event)
     {
         $message = $event->getMessage();
+
+        $conversation = $message->getConversation();
+        $conversation->setMessages([$message]); // Only the last one.
+
         /** @var User $sender */
         $sender = $this->security->getUser();
         /** @var User[] $participants */
-        $participants = $message->getConversation()->getParticipants()->toArray();
-        $participants = array_filter($participants, function (User $participant) use ($sender) {
-            return $participant->getId() !== $sender->getId();
-        });
-        $conversation = $message->getConversation();
-        $conversation->setMessages([$message]); // Only the last one.
+        $participants = array_filter(
+            $message->getConversation()->getParticipants()->toArray(),
+            function (User $participant) use ($sender) {
+                return $participant->getId() !== $sender->getId();
+            });
 
         $topics = array_map(function (User $participant) {
             return "http://users/{$participant->getId()}";
@@ -59,10 +66,9 @@ class MessageCreatedSubscriber implements EventSubscriberInterface
             'groups' => ['messages:read', 'users:search', 'conversations:read']
         ]));
 
-        $update = new Update($topics, $data);
+        $update = new Update($topics, $data, true);
 
-        $publisher = $this->publisher;
-        $publisher($update);
+        ($this->publisher)($update);
     }
 
     public static function getSubscribedEvents()

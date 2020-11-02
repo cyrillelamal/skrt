@@ -53,19 +53,4 @@ class UserController extends AbstractController
             ['groups' => ['users:search']]
         );
     }
-
-    /**
-     * @Route("/reflect", name="reflect", methods={"GET"})
-     * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
-     * @return JsonResponse
-     */
-    public function reflect(): JsonResponse
-    {
-        /** @var User $user */
-        $user = $this->getUser();
-
-        return $this->json([
-            'id' => $user->getId(),
-        ]);
-    }
 }

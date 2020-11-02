@@ -28,9 +28,9 @@ class RegistrationController extends AbstractController
     private $authenticator;
 
     public function __construct(
-        UserPasswordEncoderInterface $passwordEncoder,
-        GuardAuthenticatorHandler $guardHandler,
-        LoginFormAuthenticator $authenticator
+        UserPasswordEncoderInterface $passwordEncoder
+        , GuardAuthenticatorHandler $guardHandler
+        , LoginFormAuthenticator $authenticator
     )
     {
         $this->passwordEncoder = $passwordEncoder;

@@ -4,7 +4,7 @@ import moment from 'moment';
 // noinspection JSUnresolvedVariable
 export class Message extends React.Component {
     getPaddingClass() {
-        return Number(localStorage.getItem('userId')) === this.props.creator.id
+        return Number(sessionStorage.getItem('userId')) === this.props.creator.id
             ? 'pl-6'
             : 'pr-6';
     }

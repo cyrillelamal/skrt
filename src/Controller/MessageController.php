@@ -31,8 +31,8 @@ class MessageController extends AbstractController
     private $eventDispatcher;
 
     public function __construct(
-        ConversationRepository $conversationRepository,
-        EventDispatcherInterface $eventDispatcher
+        ConversationRepository $conversationRepository
+        , EventDispatcherInterface $eventDispatcher
     )
     {
         $this->conversationRepository = $conversationRepository;

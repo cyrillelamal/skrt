@@ -25,10 +25,10 @@ export class Dashboard extends React.Component {
             .then(res => this.setState({conversations: res.data}))
             .catch(err => console.error(err));
 
-        axios.get('/api/users/reflect')
+        axios.get('/api/discovery')
             .then(res => {
-                this.subscribeToMercure(res.data.id);
-                localStorage.setItem('userId', res.data.id)
+                this.subscribeToMercure(res.data);
+                sessionStorage.setItem('userId', res.data.id)
             })
             .catch(() => localStorage.setItem('userId', null));
     }
@@ -39,11 +39,11 @@ export class Dashboard extends React.Component {
         }
     }
 
-    subscribeToMercure(id) {
-        const url = new URL('http://localhost:3000/.well-known/mercure');
-        url.searchParams.append('topic', `http://users/${id}`);
+    subscribeToMercure({mercure_publish_url, topic}) {
+        const url = new URL(mercure_publish_url);
+        url.searchParams.append('topic', topic);
 
-        this.eventSource = new EventSource(url.toString());
+        this.eventSource = new EventSource(url.toString(), {withCredentials: true});
         this.eventSource.onmessage = message => this.handleMercureMessage(message);
     }
 
