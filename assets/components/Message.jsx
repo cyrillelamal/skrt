@@ -4,9 +4,9 @@ import moment from 'moment';
 // noinspection JSUnresolvedVariable
 export class Message extends React.Component {
     getPaddingClass() {
-        const userId = Number(localStorage.getItem('userId'));
-
-        return userId === this.props.creator.id ? 'pl-6' : 'pr-6';
+        return Number(localStorage.getItem('userId')) === this.props.creator.id
+            ? 'pl-6'
+            : 'pr-6';
     }
 
     render() {
@@ -17,7 +17,8 @@ export class Message extends React.Component {
                 <div className="media-content">
                     <div className="content">
                         <p>
-                            <strong>{this.props.creator.username}</strong> <small>{createdAt}</small>
+                            <strong>{this.props.creator.username}</strong>&nbsp;
+                            <small>{createdAt}</small>
                             <br/>
                             {this.props.body}
                         </p>

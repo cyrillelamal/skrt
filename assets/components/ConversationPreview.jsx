@@ -23,7 +23,7 @@ export class ConversationPreview extends React.Component {
                 <div className="media-content p-3">
                     <div className="content">
                         <p>
-                            <strong>{this.props.title}</strong>
+                            <strong>{this.props.title}</strong>&nbsp;
                             <small>{updatedAt}</small><br/>{this.props.messages.length === 0 ? (
                             <>Empty</>
                         ) : (

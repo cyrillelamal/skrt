@@ -15,6 +15,7 @@ export class Dashboard extends React.Component {
 
         this.initiateConversation = this.initiateConversation.bind(this);
         this.setConversation = this.setConversation.bind(this);
+        this.appendMessage = this.appendMessage.bind(this);
 
         this.eventSource = null;
     }
@@ -50,20 +51,31 @@ export class Dashboard extends React.Component {
         const data = JSON.parse(message.data);
 
         this.setState(state => {
-            console.log(data)
+            const conversations = state.conversations.map(c => c.id === data.id ? data : c.id);
 
-            // const {conversations} = state;
-            //
-            // const currentConversation = conversations.find(c => c.id === data.id);
-            //
-            // const mutatedConversation = Object.assign({}, currentConversation);
-            // mutatedConversation.updated_at = data.updated_at;
-            // mutatedConversation.messages = [...currentConversation.messages, ...data.messages];
-            //
-            // return {
-            //     conversations: conversations.map(c => c.id === data.id ? mutatedConversation : c),
-            //     conversation: state.conversation.id === mutatedConversation.id ? mutatedConversation : state.conversation,
-            // };
+            let newState = {conversations};
+
+            if (state.conversation.id === data.id) {
+                const messages = [...state.conversation.messages, ...data.messages];
+
+                const conversation = Object.assign({}, data);
+                conversation.messages = messages;
+
+                Object.assign(newState, {conversation});
+            }
+
+            return newState;
+        });
+    }
+
+    appendMessage(message) {
+        this.setState(state => {
+            const messages = [...state.conversation.messages, message];
+
+            const conversation = Object.assign({}, state.conversation);
+            conversation.messages = messages;
+
+            return {conversation};
         });
     }
 
@@ -113,6 +125,7 @@ export class Dashboard extends React.Component {
                         </div>
                         <div className="column is-8">
                             <Conversation
+                                appendMessage={this.appendMessage}
                                 {...this.state.conversation}
                             />
                         </div>
