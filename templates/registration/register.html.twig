@@ -1,21 +1,65 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}{% trans %}register.title{% endtrans %}{% endblock %}
 
 {% block body %}
-    {% for flashError in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flashError }}</div>
-    {% endfor %}
+    <main class="hero is-fullheight">
+        <div class="hero-body">
+            <div class="container">
+                <div class="card">
+                    <div class="card-content">
 
-    <h1>Register</h1>
-
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.username) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
-
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+                        <h1 class="title">{% trans %}register.title{% endtrans %}</h1>
+                        {{ form_start(registrationForm) }}
+                        {# username #}
+                        <div class="field">
+                            {% set usernameLabel = 'register.registration_form.labels.username'|trans %}
+                            <label class="label">{{ form_label(registrationForm.username, usernameLabel) }}</label>
+                            <div class="control">
+                                {% set usernamePlaceholder = 'register.registration_form.placeholders.username'|trans %}
+                                {{ form_widget(registrationForm.username, {
+                                    'attr': {
+                                        'class': 'input',
+                                        'placeholder': usernamePlaceholder
+                                    }
+                                }) }}
+                            </div>
+                            {% include 'form_errors.html.twig' with {'field': registrationForm.username} %}
+                        </div>
+                        {# password #}
+                        <div class="field">
+                            {% set passwordLabel = 'register.registration_form.labels.password'|trans %}
+                            <label class="label">{{ form_label(registrationForm.plainPassword, passwordLabel) }}</label>
+                            <div class="control">
+                                {% set passwordPlaceholder = 'register.registration_form.placeholders.password'|trans %}
+                                {{ form_widget(registrationForm.plainPassword, {
+                                    'attr': {
+                                        'class': 'input',
+                                        'placeholder': passwordPlaceholder
+                                    }
+                                }) }}
+                            </div>
+                            {% include 'form_errors.html.twig' with {'field': registrationForm.plainPassword} %}
+                        </div>
+                        {# agree terms #}
+                        <div class="field">
+                            {% set agreeTermsLabel = 'register.registration_form.labels.agree_terms'|trans %}
+                            <label class="label">{{ form_label(registrationForm.agreeTerms, agreeTermsLabel) }}</label>
+                            <div class="control">
+                                <label class="checkbox">
+                                    {{ form_widget(registrationForm.agreeTerms) }}
+                                    {% trans %}register.registration_form.placeholders.agree_terms{% endtrans %}
+                                </label>
+                            </div>
+                            {% include 'form_errors.html.twig' with {'field': registrationForm.agreeTerms} %}
+                        </div>
+                        {# submit #}
+                        <button type="submit"
+                                class="button is-success">{% trans %}register.registration_form.submit{% endtrans %}</button>
+                        {{ form_end(registrationForm) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 {% endblock %}

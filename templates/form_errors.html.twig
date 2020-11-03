@@ -1,0 +1,7 @@
+{% if not field.vars.valid %}
+    {% for error in field.vars.errors %}
+        <p class="help is-danger">
+            {{ error.message }}
+        </p>
+    {% endfor %}
+{% endif %}

@@ -4,3 +4,13 @@ index:
     log_in: 'Log in'
 register:
     title: 'Sign up'
+    registration_form:
+        submit: 'Submit'
+        placeholders:
+            username: 'Username'
+            password: 'Password'
+            agree_terms: 'I agree to the terms and conditions'
+        labels:
+            username: 'Username'
+            password: 'Password'
+            agree_terms: 'Agree terms'
