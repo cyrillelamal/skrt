@@ -4,10 +4,6 @@ namespace App\Security;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\Cookie;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -34,36 +30,18 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
     private $urlGenerator;
     private $csrfTokenManager;
     private $passwordEncoder;
-    /**
-     * @var JWTTokenManagerInterface
-     */
-    private $JWTTokenManager;
-    /**
-     * @var Security
-     */
-    private $security;
-    /**
-     * @var ParameterBagInterface
-     */
-    private $parameterBag;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         UrlGeneratorInterface $urlGenerator,
         CsrfTokenManagerInterface $csrfTokenManager,
-        UserPasswordEncoderInterface $passwordEncoder,
-        JWTTokenManagerInterface $JWTTokenManager,
-        Security $security,
-        ParameterBagInterface $parameterBag
+        UserPasswordEncoderInterface $passwordEncoder
     )
     {
         $this->entityManager = $entityManager;
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
-        $this->JWTTokenManager = $JWTTokenManager;
-        $this->security = $security;
-        $this->parameterBag = $parameterBag;
     }
 
     public function supports(Request $request)
@@ -121,26 +99,11 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $providerKey)
     {
-        $user = $this->security->getUser();
-
-        $accessToken = $this->JWTTokenManager->create($user);
-
-        if ($request->isXmlHttpRequest()) {
-            return new JsonResponse([
-                'access_token' => $accessToken
-            ]);
-        }
         $response = new RedirectResponse($this->urlGenerator->generate('app_index'));
+
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             $response = new RedirectResponse($targetPath);
         }
-
-        $cookie = Cookie::create('access_token')
-            ->withValue($accessToken)
-            ->withExpires(time() + (int)$this->parameterBag->get('lexik_jwt_authentication.token_ttl'))
-            ->withSecure(getenv('APP_SECURE'));
-
-        $response->headers->setCookie($cookie);
 
         return $response;
     }
