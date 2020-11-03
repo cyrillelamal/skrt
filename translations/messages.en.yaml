@@ -5,7 +5,7 @@ index:
 register:
     title: 'Sign up'
     registration_form:
-        submit: 'Submit'
+        submit: 'Sign up'
         placeholders:
             username: 'Username'
             password: 'Password'
@@ -14,3 +14,14 @@ register:
             username: 'Username'
             password: 'Password'
             agree_terms: 'Agree terms'
+login:
+    title: 'Log in'
+    log_in_form:
+        submit: 'Log in'
+        placeholders:
+            username: 'Username'
+            password: 'Password'
+        labels:
+            username: 'Username'
+            password: 'Password'
+            remember_me: 'Remember me'
