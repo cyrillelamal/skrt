@@ -1,0 +1,6 @@
+index:
+    title: 'Skrt, skrt, skrt'
+    register: 'Sign up'
+    log_in: 'Log in'
+register:
+    title: 'Sign up'

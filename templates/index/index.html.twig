@@ -1,14 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Index{% endblock %}
+{% block title %}{% trans %}index.title{% endtrans %}{% endblock %}
 
 {% block body %}
-    <main class="section">
-        <div class="container">
-            <h1 class="title">index</h1>
-            <a href="{{ path('app_register') }}" class="button is-primary">Register</a>
-            <a href="{{ path('app_login') }}" class="button is-primary">Log in</a>
-            <a href="{{ path('app_logout') }}" class="button is-primary">Log out</a>
-        </div>
+    <main class="hero is-fullheight is-primary">
+        <section class="hero-body">
+            <div class="container">
+                <h1 class="title is-1">{% trans %}index.title{% endtrans %}</h1>
+            </div>
+        </section>
+        <section class="hero-foot">
+            <nav class="tabs is-boxed is-fullwidth">
+                <div class="container">
+                    <ul>
+                        <li class="has-background-info">
+                            <a href="{{ path('app_register') }}">{% trans %}index.register{% endtrans %}</a>
+                        </li>
+                        <li class="has-background-info">
+                            <a href="{{ path('app_login') }}">{% trans %}index.log_in{% endtrans %}</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </section>
     </main>
 {% endblock %}
