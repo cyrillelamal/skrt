@@ -19,6 +19,7 @@ export class Dashboard extends React.Component {
         this.prependMessage = this.prependMessage.bind(this);
 
         this.eventSource = null;
+        this.audioLink = '';
     }
 
     componentDidMount() {
@@ -32,6 +33,8 @@ export class Dashboard extends React.Component {
                 sessionStorage.setItem('userId', res.data.id)
             })
             .catch(() => localStorage.setItem('userId', null));
+
+        this.audioLink = document.getElementById('audio-notification').dataset.link;
     }
 
     componentWillUnmount() {
@@ -62,6 +65,9 @@ export class Dashboard extends React.Component {
 
                 Object.assign(newState, {conversation});
             }
+
+            const audio = new Audio(this.audioLink);
+            audio.play();
 
             return newState;
         });
