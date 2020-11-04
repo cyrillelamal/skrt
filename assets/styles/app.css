@@ -1,3 +1,9 @@
 .has-grab-cursor:hover {
     cursor: grab;
 }
+
+.is-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 20px;
+}

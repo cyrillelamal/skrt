@@ -15,7 +15,8 @@ export class Dashboard extends React.Component {
 
         this.initiateConversation = this.initiateConversation.bind(this);
         this.setConversation = this.setConversation.bind(this);
-        this.appendMessage = this.appendMessage.bind(this);
+        this.fetchConversation = this.fetchConversation.bind(this);
+        this.prependMessage = this.prependMessage.bind(this);
 
         this.eventSource = null;
     }
@@ -56,10 +57,8 @@ export class Dashboard extends React.Component {
             let newState = {conversations};
 
             if (state.conversation.id === data.id) {
-                const messages = [...state.conversation.messages, ...data.messages];
-
                 const conversation = Object.assign({}, data);
-                conversation.messages = messages;
+                conversation.messages = [...data.messages, ...state.conversation.messages];
 
                 Object.assign(newState, {conversation});
             }
@@ -68,12 +67,13 @@ export class Dashboard extends React.Component {
         });
     }
 
-    appendMessage(message) {
+    prependMessage(message) {
         this.setState(state => {
-            const messages = [...state.conversation.messages, message];
-
             const conversation = Object.assign({}, state.conversation);
-            conversation.messages = messages;
+            conversation.messages = [message, ...state.conversation.messages];
+
+            const offset = 1 + Number(sessionStorage.getItem('conversationOffset'));
+            sessionStorage.setItem('conversationOffset', String(offset));
 
             return {conversation};
         });
@@ -99,11 +99,22 @@ export class Dashboard extends React.Component {
         });
     }
 
-    fetchConversation(id, offset = 0, limit = 25) {
+    fetchConversation(id, offset = 0, limit = 10) {
+        sessionStorage.setItem('conversationOffset', String(offset));
+
         axios.get(`/api/conversations/${id}`, {
             params: {offset, limit}
         }).then(res => {
-            this.setState({conversation: res.data});
+            this.setState(state => {
+                if (offset === 0) {
+                    return {conversation: res.data};
+                }
+
+                const conversation = Object.assign({}, state.conversation);
+                conversation.messages = [...state.conversation.messages, ...res.data.messages];
+
+                return {conversation};
+            });
         }).catch(reason => {
             console.error(reason);
         });
@@ -125,7 +136,8 @@ export class Dashboard extends React.Component {
                         </div>
                         <div className="column is-8">
                             <Conversation
-                                appendMessage={this.appendMessage}
+                                appendMessage={this.prependMessage}
+                                fetchCOnversation={this.fetchConversation}
                                 {...this.state.conversation}
                             />
                         </div>

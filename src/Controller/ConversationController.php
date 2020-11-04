@@ -111,11 +111,15 @@ class ConversationController extends AbstractController
      * @Route("/{id}", name="show", methods={"GET"})
      * @IsGranted("show", subject="conversation")
      * @param Conversation $conversation
+     * @param Request $request
      * @return JsonResponse
      */
-    public function show(Conversation $conversation): JsonResponse
+    public function show(Conversation $conversation, Request $request): JsonResponse
     {
-        $messages = $this->messageRepository->findForConversation($conversation);
+        $limit = (int)$request->query->get('limit', 25);
+        $offset = (int)$request->query->get('offset', 0);
+
+        $messages = $this->messageRepository->findForConversation($conversation, $limit, $offset);
         $conversation->setMessages($messages);
 
         return $this->json(

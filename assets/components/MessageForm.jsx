@@ -39,7 +39,7 @@ export class MessageForm extends React.Component {
 
     render() {
         return (
-            <article className="media">
+            <article className="media is-sticky">
                 <div className="media-content">
                     <form onSubmit={this.handleSubmit}>
                         <div className="field">

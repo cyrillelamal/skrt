@@ -20,7 +20,7 @@ class MessageRepository extends ServiceEntityRepository
         parent::__construct($registry, Message::class);
     }
 
-    public function findForConversation(Conversation $conversation): array
+    public function findForConversation(Conversation $conversation, int $limit = 25, int $offset = 0): array
     {
         $qb = $this->createQueryBuilder('message');
 
@@ -28,37 +28,10 @@ class MessageRepository extends ServiceEntityRepository
             ->where('message.conversation = :conversation')
             ->setParameter('conversation', $conversation)
             ->leftJoin('message.conversation', 'conversation')
-            ->orderBy('message.createdAt', 'ASC');
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->orderBy('message.createdAt', 'DESC');
 
         return $qb->getQuery()->getResult();
     }
-
-    // /**
-    //  * @return Message[] Returns an array of Message objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('m')
-            ->andWhere('m.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('m.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Message
-    {
-        return $this->createQueryBuilder('m')
-            ->andWhere('m.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
