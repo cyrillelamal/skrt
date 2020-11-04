@@ -6,17 +6,13 @@ use App\Entity\User;
 use App\Event\MessageCreatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Mercure\PublisherInterface;
 use Symfony\Component\Mercure\Update;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class MessageCreatedSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var PublisherInterface
-     */
-    private $publisher;
     /**
      * @var Security
      */
@@ -25,16 +21,19 @@ class MessageCreatedSubscriber implements EventSubscriberInterface
      * @var SerializerInterface
      */
     private $serializer;
+    /**
+     * @var MessageBusInterface
+     */
+    private $messageBus;
 
-    public function __construct(
-        PublisherInterface $publisher
-        , Security $security
+    public function __construct(Security $security
         , SerializerInterface $serializer
+        , MessageBusInterface $messageBus
     )
     {
-        $this->publisher = $publisher;
         $this->security = $security;
         $this->serializer = $serializer;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -68,7 +67,7 @@ class MessageCreatedSubscriber implements EventSubscriberInterface
 
         $update = new Update($topics, $data, true);
 
-        ($this->publisher)($update);
+        $this->messageBus->dispatch($update);
     }
 
     public static function getSubscribedEvents()
