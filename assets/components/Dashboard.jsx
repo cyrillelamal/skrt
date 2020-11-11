@@ -55,9 +55,13 @@ export class Dashboard extends React.Component {
         const data = JSON.parse(message.data);
 
         this.setState(state => {
-            const conversations = state.conversations.map(c => c.id === data.id ? data : c.id);
+            const conversation = state.conversations.find(c => c.id === data.id);
 
-            let newState = {conversations};
+            const conversations = conversation === undefined
+                ? [data, ...state.conversations]
+                : state.conversations.map(c => c.id === data.id ? data : c);
+
+            const newState = {conversations};
 
             if (state.conversation.id === data.id) {
                 const conversation = Object.assign({}, data);
@@ -67,7 +71,7 @@ export class Dashboard extends React.Component {
             }
 
             const audio = new Audio(this.audioLink);
-            audio.play();
+            audio.play().then(() => null);
 
             return newState;
         });
@@ -142,7 +146,7 @@ export class Dashboard extends React.Component {
                         </div>
                         <div className="column is-8">
                             <Conversation
-                                appendMessage={this.prependMessage}
+                                prependMessage={this.prependMessage}
                                 fetchCOnversation={this.fetchConversation}
                                 {...this.state.conversation}
                             />

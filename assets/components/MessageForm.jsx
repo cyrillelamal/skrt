@@ -26,7 +26,7 @@ export class MessageForm extends React.Component {
             conversation_id: this.props.conversationId,
             body: this.state.body,
         })
-            .then(res => this.props.appendMessage(res.data))
+            .then(res => this.props.prependMessage(res.data))
             .catch(err => console.error(err));
 
         this.setState({body: ''});

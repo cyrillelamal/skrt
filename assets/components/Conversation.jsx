@@ -42,7 +42,7 @@ export class Conversation extends React.Component {
                 <hr/>
                 <MessageForm
                     conversationId={this.props.id}
-                    appendMessage={this.props.appendMessage}
+                    prependMessage={this.props.prependMessage}
                 />
                 {this.props.messages.map(message => (
                     <Message

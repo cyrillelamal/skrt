@@ -54,8 +54,19 @@
                             {# csrf #}
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                             {# submit #}
-                            <button type="submit"
-                                    class="button is-success">{% trans %}login.log_in_form.submit{% endtrans %}</button>
+                            <nav class="level">
+                                <div class="level-left">
+                                    <div class="level-item">
+                                        <button type="submit"
+                                                class="button is-success">{% trans %}login.log_in_form.submit{% endtrans %}</button>
+                                    </div>
+                                </div>
+                                <div class="level-right">
+                                    <a href="{{ path('app_register') }}"
+                                       class="button is-warning">{{ 'index.register'|trans }}</a>
+                                </div>
+                            </nav>
+
                         </form>
                     </div>
                 </div>

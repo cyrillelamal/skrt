@@ -54,8 +54,17 @@
                             {% include 'form_errors.html.twig' with {'field': registrationForm.agreeTerms} %}
                         </div>
                         {# submit #}
-                        <button type="submit"
-                                class="button is-success">{% trans %}register.registration_form.submit{% endtrans %}</button>
+                        <nav class="level">
+                            <div class="level-left">
+                                <div class="level-item">
+                                    <button type="submit"
+                                            class="button is-success">{% trans %}register.registration_form.submit{% endtrans %}</button>
+                                </div>
+                            </div>
+                            <div class="level-right">
+                                <a href="{{ path('app_login') }}" class="button is-warning">{{ 'index.log_in'|trans }}</a>
+                            </div>
+                        </nav>
                         {{ form_end(registrationForm) }}
                     </div>
                 </div>
