@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Repository\ConversationRepository;
 use App\Repository\MessageRepository;
 use App\Repository\UserRepository;
+use OpenApi\Annotations as OA;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -51,6 +52,27 @@ class ConversationController extends AbstractController
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/conversations",
+     *     summary="Create a new conversation.",
+     *     tags={"conversations", "create"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              required={"usernames"},
+     *              @OA\Property(type="array", property="usernames", @OA\Items(type="string"), example="[""foo"", ""bar""]")
+     *          )
+     *      ),
+     *     @OA\Response(
+     *     response=201,
+     *     description="The newly created conversation.",
+     *     @OA\JsonContent(ref="#/components/schemas/Conversation")
+     *     ),
+     *     @OA\Response(
+     *     response=401,
+     *     description="The user is unauthorized to perform the action."
+     * )
+     * )
      * @Route("/", name="store", methods={"POST"})
      * @IsGranted("IS_AUTHENTICATED_REMEMBERED")
      * @param Request $request
@@ -89,6 +111,20 @@ class ConversationController extends AbstractController
     }
 
     /**
+     * @OA\Get(
+     *     path="/api/conversations",
+     *     tags={"read", "conversations"},
+     *     description="Get latest user's conversations.",
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of user's conversations.",
+     *         @OA\JsonContent(type="array", @OA\Items(type="object", ref="#/components/schemas/Conversation"))
+     *     ),
+     *     @OA\Response(
+     *     response=401,
+     *     description="The user is unauthorized to perform the action."
+     * )
+     * )
      * @Route("/", name="index", methods={"GET"})
      * @return Response
      */
@@ -108,6 +144,27 @@ class ConversationController extends AbstractController
     }
 
     /**
+     * @OA\Get(
+     *     path="/api/conversations/{id}",
+     *     tags={"read", "conversations"},
+     *     description="Get the conversation with the latest messages.",
+     *     @OA\Parameter(
+     *         in="path",
+     *         name="id",
+     *         required=true,
+     *         description="Id of the conversation.",
+     *         @OA\Schema(type="integer", example=27)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="The informations about the conversation and the latest messages.",
+     *         @OA\JsonContent(type="object", ref="#/components/schemas/Conversation")
+     *     ),
+     *     @OA\Response(
+     *     response=401,
+     *     description="The user is unauthorized to perform the action."
+     * )
+     * )
      * @Route("/{id}", name="show", methods={"GET"})
      * @IsGranted("show", subject="conversation")
      * @param Conversation $conversation

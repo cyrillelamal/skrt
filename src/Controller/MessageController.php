@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use OpenApi\Annotations as OA;
 
 /**
  * @Route("/api/messages", name="messages_")
@@ -40,6 +41,27 @@ class MessageController extends AbstractController
     }
 
     /**
+     * @OA\Post(
+     *     path="/api/messages",
+     *     summary="Create a new message.",
+     *     tags={"messages", "create"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              type="object",
+     *              ref="#/components/schemas/Message"
+     *          )
+     *      ),
+     *     @OA\Response(
+     *     response=201,
+     *     description="The newly created message.",
+     *     @OA\JsonContent(ref="#/components/schemas/Message")
+     *     ),
+     *     @OA\Response(
+     *     response=401,
+     *     description="The user is unauthorized to perform the action."
+     * )
+     * )
      * @Route("/", name="store", methods={"POST"})
      * @param Request $request
      * @return Response

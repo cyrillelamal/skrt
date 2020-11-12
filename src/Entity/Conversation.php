@@ -11,14 +11,23 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use OpenApi\Annotations as OA;
 
 /**
+ * @OA\Schema()
  * @ORM\Entity(repositoryClass=ConversationRepository::class)
  */
 class Conversation
 {
     public const TITLE_MAX_LENGTH = 511;
+
     /**
+     * @OA\Property(
+     *     property="id",
+     *     type="integer",
+     *     example=1337,
+     *     description="Unique identifier of the conversation."
+     * )
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -27,6 +36,13 @@ class Conversation
     private $id;
 
     /**
+     * @OA\Property(
+     *     property="updated_at",
+     *     type="string",
+     *     format="date-time",
+     *     example="2020-11-10T14:25:16+00:00",
+     *     description="Datetime when the conversation has been updated."
+     * )
      * @ORM\Column(type="datetime")
      * @Groups({"conversations:read"})
      * @SerializedName("updated_at")
@@ -34,6 +50,13 @@ class Conversation
     private $updatedAt;
 
     /**
+     * @OA\Property(
+     *     property="created_at",
+     *     type="string",
+     *     format="date-time",
+     *     example="2020-11-10T14:25:16+00:00",
+     *     description="Datetime when the conversation has been created."
+     * )
      * @ORM\Column(type="datetime")
      * @Groups({"conversations:read"})
      * @SerializedName("created_at")
@@ -41,17 +64,34 @@ class Conversation
     private $createdAt;
 
     /**
+     * @OA\Property(
+     *     property="participants",
+     *     type="array",
+     *     @OA\Items(type="object", ref="#/components/schemas/User"),
+     *     description="List of participants."
+     * )
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="conversations")
      */
     private $participants;
 
     /**
+     * @OA\Property(
+     *     property="messages",
+     *     type="array",
+     *     @OA\Items(type="object", ref="#/components/schemas/Message"),
+     *     description="The messages of the conversation."
+     * )
      * @ORM\OneToMany(targetEntity=Message::class, mappedBy="conversation", orphanRemoval=true)
      * @Groups({"messages:read"})
      */
     private $messages;
 
     /**
+     * @OA\Property(
+     *     property="title",
+     *     type="string",
+     *     description="Title of the conversation."
+     * )
      * @ORM\Column(type="string", length=511)
      * @Groups({"conversations:read"})
      */

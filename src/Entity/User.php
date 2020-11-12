@@ -10,14 +10,22 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use OpenApi\Annotations as OA;
 
 /**
+ * @OA\Schema()
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @UniqueEntity(fields={"username"}, message="There is already an account with this username")
  */
 class User implements UserInterface
 {
     /**
+     * @OA\Property(
+     *     property="id",
+     *     type="integer",
+     *     example=1337,
+     *     description="Unique identifier of the user."
+     * )
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -26,6 +34,12 @@ class User implements UserInterface
     private $id;
 
     /**
+     * @OA\Property(
+     *     property="username",
+     *     type="string",
+     *     example="primo",
+     *     description="Unique username displayed to the other users."
+     * )
      * @ORM\Column(type="string", length=180, unique=true)
      * @Groups({"users:search"})
      */
@@ -43,6 +57,12 @@ class User implements UserInterface
     private $password;
 
     /**
+     * @OA\Property(
+     *     property="conversations",
+     *     type="array",
+     *     description="The user's conversations.",
+     *     @OA\Items(type="object", ref="#/components/schemas/Conversation")
+     * )
      * @ORM\ManyToMany(targetEntity=Conversation::class, mappedBy="participants")
      */
     private $conversations;

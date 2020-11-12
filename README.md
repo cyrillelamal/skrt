@@ -29,6 +29,11 @@ openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout
 
 Also consider all the other configs, such as `DATABASE_URL`, `MERCURE_PUBLISH_URL`, etc.
 
+- Build documentation (optional)
+```
+./vendor/bin/openapi --format yaml --output ./swagger/swagger-doc.yaml ./swagger/swagger.php src
+```
+
 ## Important security considerations
 ### CSRF
 Technically the application is a single page application. 

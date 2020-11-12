@@ -9,13 +9,21 @@ use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use OpenApi\Annotations as OA;
 
 /**
+ * @OA\Schema()
  * @ORM\Entity(repositoryClass=MessageRepository::class)
  */
 class Message
 {
     /**
+     * @OA\Property(
+     *     property="id",
+     *     type="integer",
+     *     example=1337,
+     *     description="Unique identifier of the message."
+     * )
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -24,12 +32,25 @@ class Message
     private $id;
 
     /**
+     * @OA\Property(
+     *     property="body",
+     *     type="string",
+     *     example="Lorem ipsum dolor!",
+     *     description="Content of the message."
+     * )
      * @ORM\Column(type="text")
      * @Groups({"messages:read"})
      */
     private $body;
 
     /**
+     * @OA\Property(
+     *     property="created_at",
+     *     type="string",
+     *     format="date-time",
+     *     example="2020-11-10T14:25:16+00:00",
+     *     description="Datetime when the message has been created."
+     * )
      * @ORM\Column(type="datetime")
      * @Groups({"messages:read"})
      * @SerializedName("created_at")
@@ -37,12 +58,24 @@ class Message
     private $createdAt;
 
     /**
+     * @OA\Property(
+     *     property="name",
+     *     type="object",
+     *     description="The conversation containing teh message.",
+     *     ref="#/components/schemas/Conversation"
+     * )
      * @ORM\ManyToOne(targetEntity=Conversation::class, inversedBy="messages")
      * @ORM\JoinColumn(nullable=false)
      */
     private $conversation;
 
     /**
+     * @OA\Property(
+     *     property="user",
+     *     type="object",
+     *     description="Creator of the message.",
+     *     ref="#/components/schemas/User"
+     * )
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="messages")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"users:search"})
