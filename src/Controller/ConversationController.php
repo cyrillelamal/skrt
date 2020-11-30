@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Repository\ConversationRepository;
 use App\Repository\MessageRepository;
 use App\Repository\UserRepository;
+use App\Service\FormUtils;
 use OpenApi\Annotations as OA;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/api/conversations", name="conversations_")
@@ -37,18 +39,24 @@ class ConversationController extends AbstractController
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
 
     public function __construct(
         ConversationRepository $repository
         , UserRepository $userRepository
         , MessageRepository $messageRepository
         , EventDispatcherInterface $eventDispatcher
+        , ValidatorInterface $validator
     )
     {
         $this->repository = $repository;
         $this->userRepository = $userRepository;
         $this->messageRepository = $messageRepository;
         $this->eventDispatcher = $eventDispatcher;
+        $this->validator = $validator;
     }
 
     /**
@@ -97,6 +105,12 @@ class ConversationController extends AbstractController
             $conversation->addParticipant($user);
         }
         $conversation->setTitle($conversation->generateTitle());
+
+        $errors = $this->validator->validate($conversation);
+        if (count($errors) > 0) {
+            $data = FormUtils::mapValidatorErrors($errors);
+            return $this->json($data, Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($conversation);

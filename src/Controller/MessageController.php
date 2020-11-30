@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use OpenApi\Annotations as OA;
 
@@ -30,14 +31,20 @@ class MessageController extends AbstractController
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
+    /**
+     * @var ValidatorInterface
+     */
+    private $validator;
 
     public function __construct(
         ConversationRepository $conversationRepository
         , EventDispatcherInterface $eventDispatcher
+        , ValidatorInterface $validator
     )
     {
         $this->conversationRepository = $conversationRepository;
         $this->eventDispatcher = $eventDispatcher;
+        $this->validator = $validator;
     }
 
     /**
@@ -88,6 +95,12 @@ class MessageController extends AbstractController
                 ->setCreator($user)
                 ->setConversation($conversation);
             $conversation->setUpdatedAt(new DateTime());
+
+            $errors = $this->validator->validate($message);
+            if (count($errors) > 0) {
+                $data = FormUtils::mapValidatorErrors($errors);
+                return $this->json($data, Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
 
             $em = $this->getDoctrine()->getManager();
             $em->persist($message);

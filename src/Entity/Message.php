@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @OA\Schema()
@@ -40,6 +41,8 @@ class Message
      * )
      * @ORM\Column(type="text")
      * @Groups({"messages:read"})
+     *
+     * @Assert\NotBlank()
      */
     private $body;
 
@@ -54,6 +57,8 @@ class Message
      * @ORM\Column(type="datetime")
      * @Groups({"messages:read"})
      * @SerializedName("created_at")
+     *
+     * @Assert\DateTime()
      */
     private $createdAt;
 
@@ -66,6 +71,8 @@ class Message
      * )
      * @ORM\ManyToOne(targetEntity=Conversation::class, inversedBy="messages")
      * @ORM\JoinColumn(nullable=false)
+     *
+     * @Assert\NotNull()
      */
     private $conversation;
 
@@ -79,6 +86,8 @@ class Message
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="messages")
      * @ORM\JoinColumn(nullable=false)
      * @Groups({"users:search"})
+     *
+     * @Assert\NotNull()
      */
     private $creator;
 

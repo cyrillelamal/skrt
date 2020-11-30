@@ -11,6 +11,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Validator\Constraints as Assert;
 use OpenApi\Annotations as OA;
 
 /**
@@ -46,6 +47,8 @@ class Conversation
      * @ORM\Column(type="datetime")
      * @Groups({"conversations:read"})
      * @SerializedName("updated_at")
+     *
+     * @Assert\DateTime()
      */
     private $updatedAt;
 
@@ -60,6 +63,8 @@ class Conversation
      * @ORM\Column(type="datetime")
      * @Groups({"conversations:read"})
      * @SerializedName("created_at")
+     *
+     * @Assert\DateTime()
      */
     private $createdAt;
 
@@ -94,6 +99,8 @@ class Conversation
      * )
      * @ORM\Column(type="string", length=511)
      * @Groups({"conversations:read"})
+     *
+     * @Assert\NotNull()
      */
     private $title;
 
